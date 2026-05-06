@@ -52,7 +52,7 @@ int main() {
                         break;
                     }
                     break;
-                case 2: { // Added braces for local scope
+                case 2: {
                     fd_set read_fds;
                     struct timeval timeout = {5, 0};
                     FD_ZERO(&read_fds);
@@ -82,7 +82,7 @@ int main() {
             }
         } while (ch != 0);
 
-    } else if (strcmp(choice, "Server") == 0) { // No longer "outside" main
+    } else if (strcmp(choice, "Server") == 0) {
         printf("Server mode\n");
         do {
             print_menu_server();
