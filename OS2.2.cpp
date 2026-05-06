@@ -38,44 +38,44 @@ int main()
         print_menu_client();
         if (scanf("%d", &ch) != 1) break;
         switch (ch) {
-            case 1: 
-            fd=open(FILENAME, O_RDONLY);
-            ptr=mmap(NULL, FILESIZE, PROT_READ, MAP_SHARED, fd, 0);
-            if (ptr == MAP_FAILED) {
-                perror("Error mapping file");
-                close(fd);
-                printf("Failed to map file\n");
+            case 1: {
+                fd = open(FILENAME, O_RDONLY);
+                ptr = mmap(NULL, FILESIZE, PROT_READ, MAP_SHARED, fd, 0);
+                if (ptr == MAP_FAILED) {
+                    perror("Error mapping file");
+                    close(fd);
+                    printf("Failed to map file\n");
+                    break;
+                }
+                break;
+            } 
+            case 2: {
+                fd_set read_fds;
+                struct timeval timeout = {5, 0};
+                FD_ZERO(&read_fds);
+                FD_SET(fd, &read_fds);
+                int result = select(fd + 1, &read_fds, NULL, NULL, &timeout);
+                if (result == -1) {
+                    perror("Error in select");
+                    munmap(ptr, FILESIZE);
+                    close(fd);
+                    exit(EXIT_FAILURE);
+                } else if (result == 0) {
+                    printf("Timeout occurred, no data to read\n");
+                } else {
+                    if (FD_ISSET(fd, &read_fds)) {
+                        printf("Message from server: %s\n", ptr);
+                    }
+                }
                 break;
             }
-            break;
-            case 2:
-            fd_set read_fds;
-            struct timeval timeout = {5, 0};
-            FD_ZERO(&read_fds);
-            FD_SET(fd, &read_fds);
-            int result = select(fd + 1, &read_fds, NULL, NULL, &timeout);
-            if (result == -1) {
-                perror("Error in select");
+            case 3:
                 munmap(ptr, FILESIZE);
                 close(fd);
-                exit(EXIT_FAILURE);
-            } else if (result == 0) {
-                printf("Timeout occurred, no data to read\n");
-            } else {
-                if (FD_ISSET(fd, &read_fds)) {
-                    printf("Message from server: %s\n", ptr);
-                }
-            }
-            printf("Client received: %s\n", ptr);
-            break;
-            case 3:
-            munmap(ptr, FILESIZE);
-            close(fd);
-            break;
+                break;
             default: printf("Invalid choice\n"); break;
         }
     } while (ch != 0);
-}
     } else if (strcmp(choice, "Server") == 0) {
         printf("Server mode\n");
         do {
